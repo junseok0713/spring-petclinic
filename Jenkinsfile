@@ -7,7 +7,9 @@ pipeline {
     }
     environment { 
         // jenkins에 등록해 놓은 docker hub credentials 이름
-        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials') 
+        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
+        REGION = "ap-northeast-2"
+        AWS_CREDENTIALS = credentials('AWSCredentinals')
     }
 
     stages {
@@ -78,13 +80,12 @@ pipeline {
               echo "Upload to S3"
               dir("${env.WORKSPACE}"){
                 sh 'zip -r deploy.zip ./deploy appspec.yml'
-                withAWS(region:"${REGION}",credentials:"${AWS_CREDENTIAL_NAME}"){
+                withAWS(region:"${REGION}",credentials:"${AWS_CREDENTIALS}"){
                  s3upload(file:"deploy.zip",bucket:"user17-codedeploy-bucket")
                 }
                 sh 'rm -rf ./deploy.zip'
               }
             }
-        
         }
         
     }
