@@ -6,10 +6,9 @@ pipeline {
         maven 'M3'
     }
     environment { 
-        // jenkins에 등록해 놓은 docker hub credentials 이름
-        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
-        REGION = "ap-northeast-2"
-        AWS_CREDENTIAL_NAME = 'AWSCredentials'
+        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')  // Docker Hub 자격 증명 ID
+        REGION = "ap-northeast-2"  // AWS 리전
+        AWS_CREDENTIAL_NAME = 'AWSCredentials'  // AWS 자격 증명 ID
     }
 
     stages {
@@ -55,59 +54,75 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                // docker hub 로그인
+                // Docker Hub 로그인
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
+        
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'  
-                sh "docker push kimaudwns/spring-petclinic:latest"  // docker push
+                sh "docker push kimaudwns/spring-petclinic:latest"  // Docker 이미지 푸시
             }
         }
+        
         stage('Cleaning up') { 
-		        steps { 
-              // docker image 제거
-              echo 'Cleaning up unused Docker images on Jenkins server'
-              sh """
-              docker rmi kimaudwns/spring-petclinic:$BUILD_NUMBER
-              docker rmi kimaudwns/spring-petclinic:latest
-              """
+            steps { 
+                // Jenkins 서버의 사용하지 않는 Docker 이미지 제거
+                echo 'Cleaning up unused Docker images on Jenkins server'
+                sh """
+                docker rmi kimaudwns/spring-petclinic:$BUILD_NUMBER
+                docker rmi kimaudwns/spring-petclinic:latest
+                """
             }
         }
-        stage('Upload S3'){
-            steps{
-              echo "Upload to S3"
-              dir("${env.WORKSPACE}"){
-                sh 'zip -r deploy.zip ./deploy appspec.yml'
-                withAWS(region:"${REGION}",credentials:"${AWS_CREDENTIAL_NAME}"){
-                 s3Upload(file:"deploy.zip",bucket:"team5-codedeploy-bucket")
+        
+        stage('Upload S3') {
+            steps {
+                echo "Upload to S3"
+                dir("${env.WORKSPACE}") {
+                    sh 'zip -r deploy.zip ./deploy appspec.yml'
+                    
+                    // AWS 자격 증명과 함께 S3에 파일 업로드
+                    withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIAL_NAME}") {
+                        s3Upload(file: "deploy.zip", bucket: "team5-codedeploy-bucket")
+                    }
+                    
+                    sh 'rm -rf deploy.zip'  // 임시 zip 파일 삭제
                 }
-                sh 'rm -rf ./deploy.zip'
-              }
             }
         }
+
         stage('Codedeploy Workload') {
-              steps {
-               echo "create Codedeploy group"   
-                sh '''
+            steps {
+                echo "create Codedeploy group"
+                
+                // AWS 자격 증명 설정 추가 (withAWS 블록 사용)
+                withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIAL_NAME}") {
+                    // 배포 그룹 생성
+                    sh '''
                     aws deploy create-deployment-group \
-                    --application-name 5team_codedeploy \
+                    --application-name team5-codedeploy \  // 애플리케이션 이름 일관성 유지
                     --auto-scaling-groups team5-asg \
-                    --deployment-group-name 5team_codedeploy-${BUILD_NUMBER} \
+                    --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --service-role-arn arn:arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
-                    '''
-                echo "Codedeploy Workload"   
-                sh '''
-                    aws deploy create-deployment --application-name team5-code-deploy \
+                        '''
+                    
+                    echo "Codedeploy Workload"
+                    
+                    // 애플리케이션 이름과 배포 그룹 이름을 일관되게 유지
+                    sh '''
+                    aws deploy create-deployment \
+                    --application-name team5-codedeploy \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --deployment-group-name team5-code-deploy-${BUILD_NUMBER} \
+                    --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
                     --s3-location bucket=team5-codedeploy-bucket,bundleType=zip,key=deploy.zip
                     '''
-                    sleep(10) // sleep 10s
-  }
+                }
+                
+                sleep(10)  // 10초 대기
+            }
+        }
+    }
 }
-   
-    }   
-     }
