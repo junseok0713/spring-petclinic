@@ -92,9 +92,9 @@ pipeline {
                echo "create Codedeploy group"   
                 sh '''
                     aws deploy create-deployment-group \
-                    --application-name team5-code-deploy \
+                    --application-name 5team-code-deploy \
                     --auto-scaling-groups team5-asg \
-                    --deployment-group-name team5-code-deploy-${BUILD_NUMBER} \
+                    --deployment-group-name 5team-code-deploy-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --service-role-arn arn:arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
                     '''
@@ -108,3 +108,6 @@ pipeline {
                     sleep(10) // sleep 10s
   }
 }
+   
+    }   
+     }
