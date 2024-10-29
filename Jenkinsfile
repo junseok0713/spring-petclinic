@@ -99,18 +99,15 @@ pipeline {
                 
                 // AWS 자격 증명 설정 추가 (withAWS 블록 사용)
                 withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIAL_NAME}") {
-                    // 배포 그룹 생성
                     sh '''
                     aws deploy create-deployment-group \
-                    --application-name team5-codedeploy \  
+                    --application-name team5-codedeploy \
                     --auto-scaling-groups team5-asg \
                     --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --service-role-arn arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
-                        '''
-                    
+                       '''
                     echo "Codedeploy Workload"
-                    
                     sh '''
                     aws deploy create-deployment \
                     --application-name team5-codedeploy \
