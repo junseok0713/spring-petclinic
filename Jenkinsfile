@@ -75,9 +75,9 @@ pipeline {
               """
             }
         }
-        stage('Upload S3'){
+        stage('S3Upload'){
             steps{
-              echo "Upload to S3"
+              echo "S3Upload"
               dir("${env.WORKSPACE}"){
                 sh 'zip -r deploy.zip ./deploy appspec.yml'
                 withAWS(region:"${REGION}",credentials:"${ AWS_CREDENTIAL_NAME}"){
