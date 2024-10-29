@@ -102,7 +102,7 @@ pipeline {
                     // 배포 그룹 생성
                     sh '''
                     aws deploy create-deployment-group \
-                    --application-name team5-codedeploy \  // 애플리케이션 이름 일관성 유지
+                    --application-name team5-codedeploy \  
                     --auto-scaling-groups team5-asg \
                     --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
