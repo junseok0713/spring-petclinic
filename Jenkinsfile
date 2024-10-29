@@ -106,12 +106,11 @@ pipeline {
                     --auto-scaling-groups team5-asg \
                     --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --service-role-arn arn:arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
+                    --service-role-arn arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
                         '''
                     
                     echo "Codedeploy Workload"
                     
-                    // 애플리케이션 이름과 배포 그룹 이름을 일관되게 유지
                     sh '''
                     aws deploy create-deployment \
                     --application-name team5-codedeploy \
