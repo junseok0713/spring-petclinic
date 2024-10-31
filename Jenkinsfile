@@ -15,7 +15,7 @@ pipeline {
         stage('Git Clone') {
             steps {
                 echo 'Git Clone'
-                git url: 'https://github.com/kimaudwns/spring-petclinic.git',
+                git url: 'https://github.com/junseok0713/spring-petclinic.git',
                 branch: 'main', credentialsId: 'gitToken'
             }
             post {
@@ -45,8 +45,8 @@ pipeline {
                 echo 'Docker Image build'                
                 dir("${env.WORKSPACE}") {
                     sh """
-                    docker build -t kimaudwns/spring-petclinic:$BUILD_NUMBER .
-                    docker tag kimaudwns/spring-petclinic:$BUILD_NUMBER kimaudwns/spring-petclinic:latest
+                    docker build -t junseok0713/spring-petclinic:$BUILD_NUMBER .
+                    docker tag junseok0713/spring-petclinic:$BUILD_NUMBER kimaudwns/spring-petclinic:latest
                     """
                 }
             }
@@ -62,7 +62,7 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'  
-                sh "docker push kimaudwns/spring-petclinic:latest"  // Docker 이미지 푸시
+                sh "docker push junseok0713/spring-petclinic:latest"  // Docker 이미지 푸시
             }
         }
         
@@ -71,8 +71,8 @@ pipeline {
                 // Jenkins 서버의 사용하지 않는 Docker 이미지 제거
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
-                docker rmi kimaudwns/spring-petclinic:$BUILD_NUMBER
-                docker rmi kimaudwns/spring-petclinic:latest
+                docker rmi junseok0713/spring-petclinic:$BUILD_NUMBER
+                docker rmi junseok0713/spring-petclinic:latest
                 """
             }
         }
