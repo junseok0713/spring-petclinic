@@ -45,8 +45,8 @@ pipeline {
                 echo 'Docker Image build'                
                 dir("${env.WORKSPACE}") {
                     sh """
-                    docker build -t junseok0713/spring-petclinic:$BUILD_NUMBER .
-                    docker tag junseok0713/spring-petclinic:$BUILD_NUMBER kimaudwns/spring-petclinic:latest
+                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER .
+                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER kimaudwns/spring-petclinic:latest
                     """
                 }
             }
@@ -71,8 +71,8 @@ pipeline {
                 // Jenkins 서버의 사용하지 않는 Docker 이미지 제거
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
-                docker rmi junseok0713/spring-petclinic:$BUILD_NUMBER
-                docker rmi junseok0713/spring-petclinic:latest
+                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
+                docker rmi yangjunseok/spring-petclinic:latest
                 """
             }
         }
