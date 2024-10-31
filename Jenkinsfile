@@ -7,8 +7,6 @@ pipeline {
     }
     environment { 
         DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')  // Docker Hub 자격 증명 ID
-        REGION = "ap-northeast-2"  // AWS 리전
-        AWS_CREDENTIAL_NAME = 'AWSCredentials'  // AWS 자격 증명 ID
     }
 
     stages {
@@ -46,7 +44,7 @@ pipeline {
                 dir("${env.WORKSPACE}") {
                     sh """
                     docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER .
-                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER kimaudwns/spring-petclinic:latest
+                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest
                     """
                 }
             }
@@ -62,7 +60,8 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'  
-                sh "docker push junseok0713/spring-petclinic:latest"  // Docker 이미지 푸시
+                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"  // $BUILD_NUMBER 태그 푸시
+                sh "docker push yangjunseok/spring-petclinic:latest"  // latest 태그 푸시
             }
         }
         
@@ -74,50 +73,6 @@ pipeline {
                 docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
                 docker rmi yangjunseok/spring-petclinic:latest
                 """
-            }
-        }
-        
-        stage('Upload S3') {
-            steps {
-                echo "Upload to S3"
-                dir("${env.WORKSPACE}") {
-                    sh 'zip -r deploy.zip ./deploy appspec.yml'
-                    
-                    // AWS 자격 증명과 함께 S3에 파일 업로드
-                    withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIAL_NAME}") {
-                        s3Upload(file: "deploy.zip", bucket: "team5-codedeploy-bucket")
-                    }
-                    
-                    sh 'rm -rf deploy.zip'  // 임시 zip 파일 삭제
-                }
-            }
-        }
-
-        stage('Codedeploy Workload') {
-            steps {
-                echo "create Codedeploy group"
-                
-                // AWS 자격 증명 설정 추가 (withAWS 블록 사용)
-                withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIAL_NAME}") {
-                    sh '''
-                    aws deploy create-deployment-group \
-                    --application-name team5-codedeploy \
-                    --auto-scaling-groups team5-asg \
-                    --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
-                    --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --service-role-arn arn:aws:iam::491085389788:role/team5-CodeDeployServiceRole
-                       '''
-                    echo "Codedeploy Workload"
-                    sh '''
-                    aws deploy create-deployment \
-                    --application-name team5-codedeploy \
-                    --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --deployment-group-name team5-codedeploy-${BUILD_NUMBER} \
-                    --s3-location bucket=team5-codedeploy-bucket,bundleType=zip,key=deploy.zip
-                    '''
-                }
-                
-                sleep(10)  // 10초 대기
             }
         }
     }
