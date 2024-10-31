@@ -288,6 +288,24 @@
 
   <repositories>
     <repository>
+      <plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-checkstyle-plugin</artifactId>
+  <version>${maven-checkstyle.version}</version>
+  <configuration>
+    <configLocation>src/checkstyle/nohttp-checkstyle.xml</configLocation>
+    <suppressionsLocation>src/checkstyle/nohttp-checkstyle-suppressions.xml</suppressionsLocation> <!-- 추가 -->
+  </configuration>
+  <executions>
+    <execution>
+      <id>nohttp-checkstyle-validation</id>
+      <phase>validate</phase>
+      <goals>
+        <goal>check</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
       <id>spring-snapshots</id>
       <name>Spring Snapshots</name>
       <url>https://repo.spring.io/snapshot</url>
