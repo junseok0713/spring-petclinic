@@ -7,6 +7,7 @@ pipeline {
     }
     environment { 
         DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')  // Docker Hub 자격 증명 ID
+        KUBE_CONFIG = credentials('kubeconfig')  // Kubernetes 클러스터 인증 정보 (kubeconfig 파일 ID)
     }
 
     stages {
@@ -52,7 +53,6 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                // Docker Hub 로그인
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
@@ -60,19 +60,30 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'  
-                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"  // $BUILD_NUMBER 태그 푸시
-                sh "docker push yangjunseok/spring-petclinic:latest"  // latest 태그 푸시
+                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"
+                sh "docker push yangjunseok/spring-petclinic:latest"
             }
         }
         
         stage('Cleaning up') { 
             steps { 
-                // Jenkins 서버의 사용하지 않는 Docker 이미지 제거
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
                 docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
                 docker rmi yangjunseok/spring-petclinic:latest
                 """
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying to Kubernetes Cluster'
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    // Kubernetes Deployment 업데이트
+                    sh '''
+                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER --record
+                    '''
+                }
             }
         }
     }
