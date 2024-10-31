@@ -227,8 +227,7 @@
         <configuration>
           <failOnNoGitDirectory>false</failOnNoGitDirectory>
           <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
-                    <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
-        </configuration>
+                </configuration>
       </plugin>
       <plugin>
         <groupId>org.cyclonedx</groupId>
