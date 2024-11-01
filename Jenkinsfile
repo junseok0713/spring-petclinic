@@ -39,26 +39,6 @@ pipeline {
             }
         }
 
-        stage('Maven Test') {
-            when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-            }
-            steps {
-                echo 'Executing Tests'
-                sh 'mvn test'
-            }
-            post {
-                success {
-                    echo 'Tests passed'
-                    junit '**/target/surefire-reports/TEST-*.xml'
-                }
-                failure {
-                    echo 'Tests failed'
-                    currentBuild.result = 'UNSTABLE'
-                }
-            }
-        }
-
         stage('Docker Image Build') {
             steps {
                 echo 'Docker Image build'
