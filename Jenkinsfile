@@ -30,15 +30,11 @@ pipeline {
         stage('Maven Build') {
             steps {
                 echo 'Maven Build'
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn -Dmaven.test.failure.ignore=true package'
             }
             post {
                 success {
-                    echo 'Build succeeded, proceeding to tests...'
-                }
-                failure {
-                    echo 'Build failed, skipping tests.'
-                    currentBuild.result = 'FAILURE'
+                    junit '**/target/surefire-reports/TEST-*.xml'
                 }
             }
         }
