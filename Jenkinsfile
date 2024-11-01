@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment { 
-        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials') // Docker Hub 자격 증명 ID
-        KUBE_CONFIG = credentials('kubeconfig')  // Kubernetes 클러스터 인증 정보 (kubeconfig 파일 ID)
+        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
+        KUBE_CONFIG = credentials('kubeconfig')
     }
 
     stages {
@@ -82,7 +82,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     // Kubernetes Deployment 업데이트
                     sh '''
-                    export PATH=$PATH:/usr/bin  // kubectl 경로가 맞는지 확인
+                    export PATH=$PATH:/usr/bin 
                     kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER --record
                     '''
                 }
