@@ -79,12 +79,14 @@ pipeline {
             steps {
                 echo 'Deploying to Kubernetes Cluster'
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    // Kubernetes Deployment 업데이트
-                    sh '''
-                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER --record
-                    '''
+                    withEnv(["PATH+KUBECTL=/usr/bin"]) {  // kubectl 경로 설정 추가
+                        sh '''
+                        kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER --record
+                        '''
+                    }
                 }
             }
         }
     }
 }
+
