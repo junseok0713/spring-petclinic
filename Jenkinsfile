@@ -1,13 +1,13 @@
 pipeline {
     agent any
-    
+
     tools {
         jdk 'jdk17'
         maven 'M3'
     }
     environment { 
-        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')  // Docker Hub 자격 증명 ID
-        KUBE_CONFIG = credentials('kubeconfig')  // Kubernetes 클러스터 인증 정보 (kubeconfig 파일 ID)
+        DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
+        KUBE_CONFIG = credentials('kubeconfig')
     }
 
     stages {
@@ -26,7 +26,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Maven Build') {
             steps {
                 echo 'Maven Build'
@@ -38,13 +38,13 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Docker Image Build') {
             steps {
-                echo 'Docker Image build'                
+                echo 'Docker Image build'
                 dir("${env.WORKSPACE}") {
                     sh """
-                    docker build -t yangjunseok/spring-petclinic:latest .
+                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER .
                     docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest
                     """
                 }
@@ -56,15 +56,15 @@ pipeline {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-        
+
         stage('Docker Image Push') {
             steps {
-                echo 'Docker Image Push'  
+                echo 'Docker Image Push'
                 sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"
                 sh "docker push yangjunseok/spring-petclinic:latest"
             }
         }
-        
+
         stage('Cleaning up') { 
             steps { 
                 echo 'Cleaning up unused Docker images on Jenkins server'
