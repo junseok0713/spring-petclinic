@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+    
+    environment {
+        KUBECONFIG_CREDENTIALS = credentials('KUBECONFIG')  // Kubernetes 자격 증명
+    }
+
+    stages {
+        stage('Deploy to Kubernetes') {
+            steps {
+                withEnv(["PATH+KUBECTL=/usr/local/bin"]) {  // kubectl 경로 추가
+                    sh 'kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER --record'
+                }
+            }
+        }
+    }
+}
