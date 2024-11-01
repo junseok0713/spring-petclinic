@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-petclinic
-  namespace: petclinic
+  namespace: spring-petclinic
 spec:
   replicas: 3
   selector:
