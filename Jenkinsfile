@@ -90,8 +90,9 @@ pipeline {
                 echo 'Deploying to Kubernetes Cluster'
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    export PATH=$PATH:/usr/bin // 경로에 /usr/bin 추가
                     export KUBECONFIG=$KUBECONFIG // kubeconfig 설정 파일 위치 지정
+                    kubectl config view // kubectl 설정 확인
+                    kubectl get nodes --insecure-skip-tls-verify // 클러스터 접근 확인
                     kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --insecure-skip-tls-verify --record
                     // Kubernetes 배포 이미지 업데이트 및 인증서 검증 생략
                     '''
