@@ -81,6 +81,57 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export PATH=$PATH:/usr/bin
+                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --insecure-skip-tls-verify --record
+                    '''
+                }
+            }
+        }
+    }
+}
+
+
+        stage('Docker Image Build') {
+            steps {
+                echo 'Docker Image build'
+                dir("${env.WORKSPACE}") {
+                    sh """
+                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER .
+                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest
+                    """
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+
+        stage('Docker Image Push') {
+            steps {
+                echo 'Docker Image Push'
+                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"
+                sh "docker push yangjunseok/spring-petclinic:latest"
+            }
+        }
+
+        stage('Cleaning up') { 
+            steps { 
+                echo 'Cleaning up unused Docker images on Jenkins server'
+                sh """
+                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER || true
+                docker rmi yangjunseok/spring-petclinic:latest || true
+                """
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying to Kubernetes Cluster'
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    export PATH=$PATH:/usr/bin
                     kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --record
                     '''
                 }
