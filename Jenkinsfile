@@ -53,7 +53,10 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                script {
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh 'docker info' // 로그인 상태 확인을 위한 출력
+                }
             }
         }
 
@@ -69,8 +72,8 @@ pipeline {
             steps { 
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
-                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
-                docker rmi yangjunseok/spring-petclinic:latest
+                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER || true
+                docker rmi yangjunseok/spring-petclinic:latest || true
                 """
             }
         }
