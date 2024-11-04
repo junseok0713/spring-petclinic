@@ -55,7 +55,6 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    // Docker Hub에 로그인하고 상태를 확인
                     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin && docker info'
                 }
             }
@@ -64,7 +63,6 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'
-                // Docker 이미지 푸시
                 sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER"
                 sh "docker push yangjunseok/spring-petclinic:latest"
             }
