@@ -81,6 +81,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export PATH=$PATH:/usr/bin
+                    export KUBECONFIG=$KUBECONFIG
                     kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --insecure-skip-tls-verify --record
                     '''
                 }
@@ -88,3 +89,4 @@ pipeline {
         }
     }
 }
+
