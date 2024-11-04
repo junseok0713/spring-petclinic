@@ -50,8 +50,8 @@ pipeline {
                 echo 'Docker Image build'
                 dir("${env.WORKSPACE}") {
                     sh """
-                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER . // Docker 이미지 생성
-                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest // 최신 버전으로 태그 지정
+                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER . # Docker 이미지 생성
+                    docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest # 최신 버전으로 태그 지정
                     """
                 }
             }
@@ -68,8 +68,8 @@ pipeline {
             // 생성된 이미지를 Docker Hub에 푸시
             steps {
                 echo 'Docker Image Push'
-                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER" // 빌드 넘버 버전 푸시
-                sh "docker push yangjunseok/spring-petclinic:latest" // 최신 버전 푸시
+                sh "docker push yangjunseok/spring-petclinic:$BUILD_NUMBER" # 빌드 넘버 버전 푸시
+                sh "docker push yangjunseok/spring-petclinic:latest" # 최신 버전 푸시
             }
         }
 
@@ -90,11 +90,11 @@ pipeline {
                 echo 'Deploying to Kubernetes Cluster'
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    export KUBECONFIG=$KUBECONFIG // kubeconfig 설정 파일 위치 지정
-                    kubectl config view // kubectl 설정 확인
-                    kubectl get nodes --insecure-skip-tls-verify // 클러스터 접근 확인
+                    export KUBECONFIG=$KUBECONFIG # kubeconfig 설정 파일 위치 지정
+                    kubectl config view # kubectl 설정 확인
+                    kubectl get nodes --insecure-skip-tls-verify # 클러스터 접근 확인
                     kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --insecure-skip-tls-verify --record
-                    // Kubernetes 배포 이미지 업데이트 및 인증서 검증 생략
+                    # Kubernetes 배포 이미지 업데이트 및 인증서 검증 생략
                     '''
                 }
             }
