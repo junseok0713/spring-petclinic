@@ -5,7 +5,6 @@ pipeline {
         jdk 'jdk17'
         maven 'M3'
     }
-    
     environment { 
         DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
         KUBE_CONFIG = credentials('kubeconfig')
@@ -31,7 +30,7 @@ pipeline {
         stage('Maven Build') {
             steps {
                 echo 'Maven Build'
-                sh 'mvn -Dmaven.repo.local=$HOME/.m2/repository -Dmaven.test.failure.ignore=true package'
+                sh 'mvn -Dmaven.test.failure.ignore=true package'
             }
             post {
                 success {
@@ -54,9 +53,7 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                script {
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin && docker info'
-                }
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
 
@@ -72,8 +69,8 @@ pipeline {
             steps { 
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
-                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER || true
-                docker rmi yangjunseok/spring-petclinic:latest || true
+                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
+                docker rmi yangjunseok/spring-petclinic:latest
                 """
             }
         }
@@ -83,10 +80,8 @@ pipeline {
                 echo 'Deploying to Kubernetes Cluster'
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    export KUBECONFIG=$KUBECONFIG
-                    kubectl config view
-                    kubectl get nodes --insecure-skip-tls-verify
-                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --insecure-skip-tls-verify --record
+                    export PATH=$PATH:/usr/bin
+                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --record
                     '''
                 }
             }
