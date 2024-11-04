@@ -30,7 +30,7 @@ pipeline {
         stage('Maven Build') {
             steps {
                 echo 'Maven Build'
-                sh 'mvn -Dmaven.test.failure.ignore=true package'
+                sh 'mvn -Dmaven.repo.local=$HOME/.m2/repository -Dmaven.test.failure.ignore=true package'
             }
             post {
                 success {
@@ -69,8 +69,8 @@ pipeline {
             steps { 
                 echo 'Cleaning up unused Docker images on Jenkins server'
                 sh """
-                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER
-                docker rmi yangjunseok/spring-petclinic:latest
+                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER || true
+                docker rmi yangjunseok/spring-petclinic:latest || true
                 """
             }
         }
