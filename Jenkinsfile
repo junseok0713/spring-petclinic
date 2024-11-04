@@ -5,6 +5,7 @@ pipeline {
         jdk 'jdk17'
         maven 'M3'
     }
+    
     environment { 
         DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
         KUBE_CONFIG = credentials('kubeconfig')
@@ -26,7 +27,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Maven Build') {
             steps {
                 echo 'Maven Build'
@@ -38,7 +39,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Docker Image Build') {
             steps {
                 echo 'Docker Image build'
@@ -53,13 +54,10 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                script {
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                    sh 'docker info' // 로그인 상태 확인을 위한 출력
-                }
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-
+        
         stage('Docker Image Push') {
             steps {
                 echo 'Docker Image Push'
@@ -67,7 +65,7 @@ pipeline {
                 sh "docker push yangjunseok/spring-petclinic:latest"
             }
         }
-
+        
         stage('Cleaning up') { 
             steps { 
                 echo 'Cleaning up unused Docker images on Jenkins server'
@@ -91,3 +89,4 @@ pipeline {
         }
     }
 }
+
