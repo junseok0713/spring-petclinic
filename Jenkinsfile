@@ -71,7 +71,7 @@ pipeline {
                 echo 'Deploying to Kubernetes Cluster'
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    export PATH=$PATH:/usr/bin
+                    export PATH=$PATH:/home/ubuntu
                     kubectl apply -f spring-petclinic-deployment.yaml -n spring-petclinic
                     '''
                 }
