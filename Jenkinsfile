@@ -65,6 +65,12 @@ pipeline {
                 sh "docker push yangjunseok/spring-petclinic:latest"
             }
         }
+
+        stage('Prepare Deployment File') {
+            steps {
+                sh 'cp /home/ubuntu/spring-petclinic-deployment.yaml $WORKSPACE/'
+            }
+        }
         
         stage('Deploy to Kubernetes') {
             steps {
@@ -72,7 +78,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export PATH=$PATH:/usr/bin
-                    kubectl apply -f /home/ubuntu/spring-petclinic-deployment.yaml -n spring-petclinic
+                    kubectl apply -f $WORKSPACE/spring-petclinic-deployment.yaml -n spring-petclinic
                     '''
                 }
             }
