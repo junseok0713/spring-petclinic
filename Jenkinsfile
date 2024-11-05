@@ -45,7 +45,7 @@ pipeline {
                 echo 'Docker Image build'
                 dir("${env.WORKSPACE}") {
                     sh """
-                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER -f test/Dockerfile .
+                    docker build -t yangjunseok/spring-petclinic:$BUILD_NUMBER .
                     docker tag yangjunseok/spring-petclinic:$BUILD_NUMBER yangjunseok/spring-petclinic:latest
                     """
                 }
