@@ -66,15 +66,6 @@ pipeline {
             }
         }
         
-        stage('Cleaning up') { 
-            steps { 
-                echo 'Cleaning up unused Docker images on Jenkins server'
-                sh """
-                docker rmi yangjunseok/spring-petclinic:$BUILD_NUMBER || true
-                docker rmi yangjunseok/spring-petclinic:latest || true
-                """
-            }
-        }
 
         stage('Deploy to Kubernetes') {
             steps {
