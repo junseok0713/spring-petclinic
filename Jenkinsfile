@@ -68,7 +68,7 @@ pipeline {
 
         stage('Prepare Deployment File') {
             steps {
-                sh 'cp /home/ubuntu/spring-petclinic-deployment.yaml $WORKSPACE/'
+                sh 'sudo cp /home/ubuntu/spring-petclinic-deployment.yaml $WORKSPACE/'
             }
         }
         
