@@ -78,7 +78,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export PATH=$PATH:/usr/bin
-                    kubectl apply -f $WORKSPACE/spring-petclinic-deployment.yaml -n spring-petclinic
+                    kubectl apply -f var/jenkins_home/spring-petclinic-deployment.yaml -n spring-petclinic
                     '''
                 }
             }
