@@ -69,6 +69,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes Cluster'
+                dir("${env.WORKSPACE}")
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export PATH=$PATH:/usr/bin
