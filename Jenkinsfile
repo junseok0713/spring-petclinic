@@ -69,12 +69,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes Cluster'
-                dir("${env.WORKSPACE}")
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    dir("${env.WORKSPACE}"){
                     sh '''
                     export PATH=$PATH:/usr/bin
                     kubectl apply -f var/jenkins_home/spring-petclinic-deployment.yaml -n spring-petclinic
                     '''
+                    }
                 }
             }
         }
