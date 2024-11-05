@@ -66,12 +66,6 @@ pipeline {
             }
         }
 
-        stage('Prepare Deployment File') {
-            steps {
-                sh 'sudo cp /home/ubuntu/spring-petclinic-deployment.yaml $WORKSPACE/'
-            }
-        }
-        
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes Cluster'
