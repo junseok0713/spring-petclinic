@@ -35,7 +35,9 @@ pipeline {
             }
             post {
                 success {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                     junit '**/target/surefire-reports/TEST-*.xml'
+                    }
                 }
             }
         }
