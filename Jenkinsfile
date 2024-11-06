@@ -75,7 +75,7 @@ pipeline {
                     dir("${env.WORKSPACE}"){
                     sh '''
                     export PATH=$PATH:/usr/bin
-                    kubectl apply -f /var/jenkins_home/spring-petclinic-deployment.yaml -n spring-petclinic
+                    kubectl set image deployment/spring-petclinic spring-petclinic=yangjunseok/spring-petclinic:$BUILD_NUMBER -n spring-petclinic --record
                     '''
                     }
                 }
